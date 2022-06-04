@@ -12,11 +12,11 @@ const uuidAPIKey=require("uuid-apikey");
 
 
 const conn=db.createConnection({
-    host:'ysc-haksik-db.cbz9hhawtadk.us-west-2.rds.amazonaws.com',
-    port:3306,
-    user:'admin',
-    password:'songdamhaksik',
-    database:'haksik_rate'
+    host:'127.0.0.1',
+    port:3309,
+    user:'root',
+    password:'mariadb',
+    database:'haksik_db'
 });
 
 const key={
