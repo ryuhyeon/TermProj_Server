@@ -12,7 +12,7 @@ const uuidAPIKey=require("uuid-apikey");
 
 
 const conn=db.createConnection({
-    host:'127.0.0.1',
+    host:'localhost',
     port:3309,
     user:'root',
     password:'mariadb',
