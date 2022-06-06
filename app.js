@@ -10,6 +10,19 @@ const { next } = require("cheerio/lib/api/traversing");
 const { ServerlessApplicationRepository } = require("aws-sdk");
 const uuidAPIKey=require("uuid-apikey");
 
+const dbconfig={
+    host:"ec2-34-225-159-178.compute-1.amazonaws.com",
+    user:"devtfeqqhtrezm",
+    password:"32de3512febd822c30c936c0d59dbe951be3b45f8ce9f7ddf359d082ef96e19e",
+    port:5432,
+    ssl:{
+        rejectUnauthorized:false
+    }
+}
+
+
+const client=new pg.client(dbconfig);
+client.connect();
 
 const conn=db.createConnection({
     host:'localhost',
@@ -105,12 +118,21 @@ app.get("/rate",(req,res)=>{
         
     }else{
         var q=`SELECT * FROM haksik WHERE content_name IN (${req.query.content});`
+        /*
         conn.query(q,function(err,results,fields){
             if(err){
                 console.log(err);
             }
             res.send(results);
         })
+        */
+       client.query(q,(err,res)=>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(results);
+        }
+       })
     }
 })
 app.post("/rate",(req,res)=>{
@@ -120,6 +142,7 @@ app.post("/rate",(req,res)=>{
         
     }else{
         var q=`INSERT INTO haksik VALUES (${req.query.menu}, 1) ON DUPLICATE KEY UPDATE total_star=total_star+1;`;
+        /*
         conn.query(q,function(err,lastresult,fields){
             var query=`INSERT INTO log(uid,content_name,datetime) VALUES (${req.query.uid},${req.query.menu},now());`;
             conn.query(query,function(err,results,fields){
@@ -130,6 +153,17 @@ app.post("/rate",(req,res)=>{
                 res.sendStatus(200);
             })
         })
+        */
+       client.query(q,(err,res)=>{
+        var query=`INSERT INTO log(uid,content_name,datetime) VALUES (${req.query.uid},${req.query.menu},now());`;
+        client.query(query,function(err,results,fields){
+            if(err){
+                console.log(err);
+                res.sendStatus(500);
+            }
+            res.sendStatus(200);
+        })
+       })
     }
 });
 //git
