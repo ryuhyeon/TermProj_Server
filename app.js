@@ -9,11 +9,13 @@ const db=require('mysql');
 const { next } = require("cheerio/lib/api/traversing");
 const { ServerlessApplicationRepository } = require("aws-sdk");
 const uuidAPIKey=require("uuid-apikey");
-
+const pg=require("pg");
+const { Client }=require("pg");
 const dbconfig={
     host:"ec2-34-225-159-178.compute-1.amazonaws.com",
     user:"devtfeqqhtrezm",
     password:"32de3512febd822c30c936c0d59dbe951be3b45f8ce9f7ddf359d082ef96e19e",
+    database:"dbf8epugna461e",
     port:5432,
     ssl:{
         rejectUnauthorized:false
@@ -21,7 +23,7 @@ const dbconfig={
 }
 
 
-const client=new pg.client(dbconfig);
+const client=new Client(dbconfig);
 client.connect();
 
 const conn=db.createConnection({
@@ -117,7 +119,7 @@ app.get("/rate",(req,res)=>{
         res.send('API KEY가 유효하지 않습니다.');
         
     }else{
-        var q=`SELECT * FROM haksik WHERE content_name IN (${req.query.content});`
+        var q=`SELECT * FROM songdam.haksikdata WHERE content_name IN (${req.query.content});`
         /*
         conn.query(q,function(err,results,fields){
             if(err){
@@ -126,11 +128,12 @@ app.get("/rate",(req,res)=>{
             res.send(results);
         })
         */
-       client.query(q,(err,res)=>{
+       client.query(q,(err,result)=>{
         if(err){
             console.log(err);
         }else{
-            res.send(results);
+            console.log(result.rows);
+            res.send(result.rows);
         }
        })
     }
@@ -141,7 +144,12 @@ app.post("/rate",(req,res)=>{
         res.send('API KEY가 유효하지 않습니다.');
         
     }else{
-        var q=`INSERT INTO haksik VALUES (${req.query.menu}, 1) ON DUPLICATE KEY UPDATE total_star=total_star+1;`;
+        //var q=`INSERT INTO songdam.haksikdata VALUES (${req.query.menu}, 1) ON DUPLICATE KEY UPDATE total_star=total_star+1;`;
+        var q=`INSERT INTO songdam.haksikdata(content_name,total_star)
+        VALUES (${req.query.menu},1)
+        ON CONFLICT (content_name)
+        DO UPDATE
+        SET total_star=(select total_star from songdam.haksikdata where content_name=${req.query.menu})+1;`
         /*
         conn.query(q,function(err,lastresult,fields){
             var query=`INSERT INTO log(uid,content_name,datetime) VALUES (${req.query.uid},${req.query.menu},now());`;
@@ -154,8 +162,8 @@ app.post("/rate",(req,res)=>{
             })
         })
         */
-       client.query(q,(err,res)=>{
-        var query=`INSERT INTO log(uid,content_name,datetime) VALUES (${req.query.uid},${req.query.menu},now());`;
+       client.query(q,(err,ress)=>{
+        var query=`INSERT INTO songdam.log(uid,content_name,datetime) VALUES (${req.query.uid},${req.query.menu},now());`;
         client.query(query,function(err,results,fields){
             if(err){
                 console.log(err);
