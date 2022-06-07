@@ -138,6 +138,31 @@ app.get("/rate",(req,res)=>{
        })
     }
 })
+app.get("/rateranking",(req,res)=>{
+    var apikey=req.query.apikey;
+    if(!uuidAPIKey.isAPIKey(apikey) ||!uuidAPIKey.check(apikey, key.uuid)){
+        res.send('API KEY가 유효하지 않습니다.');
+        
+    }else{
+        var q=`SELECT * FROM songdam.haksikdata ORDER BY total_star DESC limit 5);`
+        /*
+        conn.query(q,function(err,results,fields){
+            if(err){
+                console.log(err);
+            }
+            res.send(results);
+        })
+        */
+       client.query(q,(err,result)=>{
+        if(err){
+            console.log(err);
+        }else{
+            console.log(result.rows);
+            res.send(result.rows);
+        }
+       })
+    }
+})
 app.post("/rate",(req,res)=>{
     var apikey=req.query.apikey;
     if(!uuidAPIKey.isAPIKey(apikey) ||!uuidAPIKey.check(apikey, key.uuid)){
