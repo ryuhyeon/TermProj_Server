@@ -144,7 +144,7 @@ app.get("/rateranking",(req,res)=>{
         res.send('API KEY가 유효하지 않습니다.');
         
     }else{
-        var q=`SELECT * FROM songdam.haksikdata ORDER BY total_star DESC limit 5);`
+        var q=`SELECT * FROM songdam.haksikdata ORDER BY total_star DESC limit 5;`
         /*
         conn.query(q,function(err,results,fields){
             if(err){
