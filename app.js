@@ -168,8 +168,9 @@ app.post("/rate",(req,res)=>{
             if(err){
                 console.log(err);
                 res.sendStatus(500);
+            }else{
+                res.sendStatus(200);
             }
-            res.sendStatus(200);
         })
        })
     }
